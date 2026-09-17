@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { GLASS_PRODUCTS } from "@/data/products";
 import {
   Sparkles,
   ArrowRight,
@@ -46,7 +47,7 @@ export const Hero: React.FC = () => {
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200/80 text-xs font-bold text-[#0284c7] tracking-wider uppercase shadow-xs"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Metrekaresi 3.450 ₺ • Kendinden Yapışkanlı Akıllı Film</span>
+              <span>Metrekaresi {GLASS_PRODUCTS[0].basePricePerM2.toLocaleString("tr-TR")} ₺ • Kendinden Yapışkanlı Akıllı Film</span>
             </motion.div>
 
             {/* Main Headline */}

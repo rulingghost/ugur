@@ -19,6 +19,7 @@ import { useCart } from "@/context/CartContext";
 import { BANK_ACCOUNTS, INSTALLMENT_OPTIONS } from "@/data/products";
 import { SITE_CONFIG } from "@/data/config";
 import { formatArea } from "@/lib/utils";
+import { generateOrderNumber, submitSiteOrder } from "@/lib/orders";
 
 type PaymentMethod = "credit_card" | "cod" | "bank_transfer";
 
@@ -103,18 +104,58 @@ export const CheckoutModal: React.FC = () => {
 
   const finalPayableTotal = getCalculatedTotal();
 
-  // Submission handler
-  const handleCompleteOrder = (e: React.FormEvent) => {
+  const handleCompleteOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const generatedOrderNo = `MB-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-      setOrderNumber(generatedOrderNo);
-      setIsSubmitting(false);
-      setOrderCompleted(true);
-      clearCart();
-    }, 900);
+    const payMethodName =
+      paymentMethod === "credit_card"
+        ? `Kredi Kartı (${selectedInstallment} Taksit)`
+        : paymentMethod === "cod"
+        ? "Kapıda Ödeme"
+        : "Havale / EFT";
+
+    const generatedOrderNo = generateOrderNumber();
+    const result = await submitSiteOrder({
+      type: "order",
+      orderNumber: generatedOrderNo,
+      customer: {
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        email,
+        city,
+        district,
+        address,
+        invoiceType,
+        companyName: companyName.trim() || undefined,
+        taxOffice: taxOffice.trim() || undefined,
+        taxNumber: taxNumber.trim() || undefined,
+      },
+      items: cart.map((item) => ({
+        name: item.productName,
+        details: `${item.widthCm}×${item.heightCm} cm, ${formatArea(item.areaM2)} m²${
+          item.selectedAccessories.length
+            ? ` • ${item.selectedAccessories.map((acc) => acc.name).join(", ")}`
+            : ""
+        }`,
+        quantity: item.quantity,
+        total: item.itemTotal,
+      })),
+      paymentMethod: payMethodName,
+      total: finalPayableTotal,
+      note: orderNote.trim() || undefined,
+    });
+
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      alert(result.error || "Sipariş iletilemedi. Lütfen tekrar deneyin veya WhatsApp üzerinden yazın.");
+      return;
+    }
+
+    setOrderNumber(result.orderNumber);
+    setOrderCompleted(true);
+    clearCart();
   };
 
   const closeModal = () => {

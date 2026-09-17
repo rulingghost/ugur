@@ -18,6 +18,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { SITE_CONFIG } from "@/data/config";
+import { GLASS_PRODUCTS, SALE_DISCOUNT_PERCENT } from "@/data/products";
 
 export const InstagramHero: React.FC = () => {
   // Mode: "transparent" (Şeffaf) or "privacy" (Opak/Gizlilik)
@@ -48,7 +49,7 @@ export const InstagramHero: React.FC = () => {
             {/* Urgency / Offer Eyebrow */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-bold tracking-wide shadow-xs">
               <Flame className="w-3.5 h-3.5 fill-red-600 text-red-600 animate-bounce" />
-              <span>İnstagram'a Özel %35 Lansman İndirimi • Sınırlı Stok</span>
+              <span>İnstagram'a Özel %{SALE_DISCOUNT_PERCENT} Lansman İndirimi • Sınırlı Stok</span>
             </div>
 
             {/* High Converting Main Headline */}
@@ -70,13 +71,17 @@ export const InstagramHero: React.FC = () => {
             <div className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-sky-100 shadow-sm flex flex-wrap items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-slate-400 line-through font-semibold">5.300 ₺ / m²</span>
+                  <span className="text-slate-400 line-through font-semibold">
+                    {GLASS_PRODUCTS[0].regularPricePerM2.toLocaleString("tr-TR")} ₺ / m²
+                  </span>
                   <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-extrabold text-[11px]">
-                    %35 KAZANÇ
+                    %{SALE_DISCOUNT_PERCENT} KAZANÇ
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-3xl sm:text-4xl font-black text-[#0B132B]">3.450 ₺</span>
+                  <span className="text-3xl sm:text-4xl font-black text-[#0B132B]">
+                    {GLASS_PRODUCTS[0].basePricePerM2.toLocaleString("tr-TR")} ₺
+                  </span>
                   <span className="text-sm font-semibold text-slate-500">/ m² başlayan</span>
                 </div>
                 <span className="text-[11px] text-slate-400 font-medium block">

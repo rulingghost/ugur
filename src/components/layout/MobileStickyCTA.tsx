@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { MessageCircle, Zap, ArrowRight, Truck } from "lucide-react";
 import { SITE_CONFIG } from "@/data/config";
+import { GLASS_PRODUCTS } from "@/data/products";
 
 export const MobileStickyCTA: React.FC = () => {
   const [visible, setVisible] = useState(false);
@@ -49,7 +50,9 @@ export const MobileStickyCTA: React.FC = () => {
         {/* Price & Shipping Info */}
         <div className="flex-1 min-w-0 px-1">
           <div className="flex items-baseline gap-1">
-            <span className="text-base font-black text-[#0B132B]">3.450 ₺</span>
+            <span className="text-base font-black text-[#0B132B]">
+              {GLASS_PRODUCTS[0].basePricePerM2.toLocaleString("tr-TR")} ₺
+            </span>
             <span className="text-[10px] text-slate-500 font-semibold">/ m² başlayan</span>
           </div>
           <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-bold truncate">

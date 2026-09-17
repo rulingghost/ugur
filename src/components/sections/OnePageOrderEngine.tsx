@@ -26,6 +26,7 @@ import {
 import { BESTSELLER_BUNDLES, GLASS_PRODUCTS, ACCESSORY_OPTIONS, BANK_ACCOUNTS, INSTALLMENT_OPTIONS, BestsellerBundle, AccessoryOption } from "@/data/products";
 import { SITE_CONFIG } from "@/data/config";
 import { formatArea } from "@/lib/utils";
+import { generateOrderNumber, submitSiteOrder } from "@/lib/orders";
 
 type OrderType = "bundle" | "custom";
 type PaymentType = "cod" | "credit_card" | "bank_transfer" | "whatsapp";
@@ -122,23 +123,45 @@ export const OnePageOrderEngine: React.FC = () => {
     setTimeout(() => setCopiedIban(null), 2500);
   };
 
-  // Direct WhatsApp Order Trigger
-  const triggerWhatsAppOrder = () => {
-    const itemName = orderType === "bundle" ? selectedBundle.name : `Özel Ölçü (${customWidth}x${customHeight} cm)`;
-    const text = `Merhaba! MARBAR Akıllı Film siparişi vermek istiyorum.%0A%0A📦 *Seçilen Paket:* ${itemName}%0A💰 *Tutar:* ${finalTotal.toLocaleString("tr-TR")} ₺%0A👤 *Ad Soyad:* ${fullName || "(Girilmedi)"}%0A📞 *Telefon:* ${phone || "(Girilmedi)"}%0A📍 *Şehir/Adres:* ${city} ${district} ${address || ""}%0A%0AOnaylamak için dönüşünüzü bekliyorum.`;
+  const getPaymentMethodLabel = () => {
+    if (paymentMethod === "credit_card") return `Kredi Kartı (${installment} Taksit)`;
+    if (paymentMethod === "cod") return "Kapıda Ödeme";
+    if (paymentMethod === "bank_transfer") return "Havale / EFT";
+    return "WhatsApp Sipariş";
+  };
+
+  const getSelectedItemName = () =>
+    orderType === "bundle"
+      ? selectedBundle.name
+      : `Özel Ölçü (${customWidth}x${customHeight} cm)`;
+
+  const getSelectedItemDetails = () => {
+    const accessories = optionalAccessories
+      .filter((acc) => selectedAccessories.includes(acc.id))
+      .map((acc) => acc.name)
+      .join(", ");
+
+    if (orderType === "bundle") {
+      return `${selectedBundle.widthCm}×${selectedBundle.heightCm} cm${accessories ? ` • ${accessories}` : ""}`;
+    }
+
+    return `${customWidth}×${customHeight} cm, ${customCalculatedM2} m²${accessories ? ` • ${accessories}` : ""}`;
+  };
+
+  const triggerWhatsAppOrder = (orderNo: string) => {
+    const text = `Merhaba! MARBAR Akıllı Film siparişi vermek istiyorum.%0A%0A📦 *Sipariş No:* ${orderNo}%0A📦 *Seçilen Paket:* ${getSelectedItemName()}%0A💰 *Tutar:* ${finalTotal.toLocaleString("tr-TR")} ₺%0A👤 *Ad Soyad:* ${fullName || "(Girilmedi)"}%0A📞 *Telefon:* ${phone || "(Girilmedi)"}%0A📍 *Şehir/Adres:* ${city} ${district} ${address || ""}%0A%0AOnaylamak için dönüşünüzü bekliyorum.`;
     window.open(`https://wa.me/${SITE_CONFIG.contact.whatsappNumber}?text=${text}`, "_blank");
   };
 
-  // Submit Order
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (paymentMethod === "whatsapp") {
-      triggerWhatsAppOrder();
+    if (!fullName.trim() || !phone.trim()) {
+      alert("Lütfen Ad Soyad ve Telefon bilgilerini doldurunuz.");
       return;
     }
 
-    if (!fullName.trim() || !phone.trim() || !address.trim()) {
+    if (paymentMethod !== "whatsapp" && !address.trim()) {
       alert("Lütfen Ad Soyad, Telefon ve Teslimat Adresi bilgilerini doldurunuz.");
       return;
     }
@@ -151,13 +174,44 @@ export const OnePageOrderEngine: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    const generatedId = generateOrderNumber();
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      const generatedId = `MB-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-      setOrderId(generatedId);
-      setOrderSuccess(true);
-    }, 1200);
+    const result = await submitSiteOrder({
+      type: "order",
+      orderNumber: generatedId,
+      customer: {
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        city,
+        district,
+        address,
+      },
+      items: [
+        {
+          name: getSelectedItemName(),
+          details: getSelectedItemDetails(),
+          quantity: 1,
+          total: finalTotal,
+        },
+      ],
+      paymentMethod: getPaymentMethodLabel(),
+      total: finalTotal,
+      note: orderNote.trim() || undefined,
+    });
+
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      alert(result.error || "Sipariş iletilemedi. Lütfen WhatsApp üzerinden yazın veya tekrar deneyin.");
+      return;
+    }
+
+    setOrderId(result.orderNumber);
+    setOrderSuccess(true);
+
+    if (paymentMethod === "whatsapp") {
+      triggerWhatsAppOrder(result.orderNumber);
+    }
   };
 
   return (
@@ -395,7 +449,7 @@ export const OnePageOrderEngine: React.FC = () => {
 
                       <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                         <span className="text-slate-600">
-                          Hesaplanan Alan: <strong className="text-slate-900">{customCalculatedM2} m²</strong> (3.450 ₺/m²)
+                          Hesaplanan Alan: <strong className="text-slate-900">{customCalculatedM2} m²</strong> ({GLASS_PRODUCTS[0].basePricePerM2.toLocaleString("tr-TR")} ₺/m²)
                         </span>
                         <div className="text-right">
                           <span className="text-slate-400 line-through mr-2">

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Sparkles, Clock, Flame, ShieldCheck } from "lucide-react";
+import { SALE_DISCOUNT_PERCENT } from "@/data/products";
 
 export const UrgencyBar: React.FC = () => {
   // Countdown timer: 4 hours, 18 mins, 35 secs
@@ -46,7 +47,7 @@ export const UrgencyBar: React.FC = () => {
             İnstagram Lansman Fırsatı
           </span>
           <span className="text-slate-200 font-semibold text-[11px] sm:text-xs">
-            %35 İndirim • <strong className="text-sky-300">Ücretsiz Hızlı Kargo</strong> • Kapıda Ödeme
+            %{SALE_DISCOUNT_PERCENT} İndirim • <strong className="text-sky-300">Ücretsiz Hızlı Kargo</strong> • Kapıda Ödeme
           </span>
         </div>
 

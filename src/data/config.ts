@@ -16,6 +16,8 @@ export const SITE_CONFIG = {
     whatsappDisplay: "+90 535 557 39 61",
     phone: "+90 535 557 39 61",
     email: "siparis@marbarglass.com",
+    // Siparişlerin düşeceği adres. Kendi Gmail'inizi yazın.
+    orderNotifyEmail: process.env.ORDER_NOTIFY_EMAIL || "05316005047@icloud.com",
     city: "İstanbul, Türkiye",
     instagramUrl: "https://instagram.com/marbarglass",
   },

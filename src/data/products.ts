@@ -50,9 +50,9 @@ export const GLASS_PRODUCTS: GlassProduct[] = [
     shortDescription: "Mevcut camlarınızı sökmeden akıllı cama dönüştüren profesyonel film",
     description:
       "Mevcut cam doğramalarını veya cam kapıları değiştirmeden, doğrudan cam yüzeyine yapıştırılarak uygulanan yeni nesil akıllı PDLC film teknolojisi.",
-    basePricePerM2: 3450,
+    basePricePerM2: 2200,
     regularPricePerM2: 5300,
-    badge: "Instagram'a Özel %35 İndirim",
+    badge: "Instagram'a Özel %58 İndirim",
     features: [
       "Mevcut camı sökmeden/kırmadan doğrudan uygulama",
       "Ultra ince, kristal berraklığında yüksek optik netlik",
@@ -76,7 +76,7 @@ export const BESTSELLER_BUNDLES: BestsellerBundle[] = [
     heightCm: 200,
     areaM2: 2.0,
     regularPrice: 10600,
-    salePrice: 6900,
+    salePrice: 4400,
     badge: "EN ÇOK SATAN 🔥",
     popular: true,
     image: "/images/usecase-home.jpg",
@@ -97,7 +97,7 @@ export const BESTSELLER_BUNDLES: BestsellerBundle[] = [
     heightCm: 210,
     areaM2: 1.89,
     regularPrice: 9800,
-    salePrice: 6520,
+    salePrice: 4158,
     badge: "POPÜLER SEÇİM",
     popular: false,
     image: "/images/usecase-clinic.jpg",
@@ -118,7 +118,7 @@ export const BESTSELLER_BUNDLES: BestsellerBundle[] = [
     heightCm: 240,
     areaM2: 2.88,
     regularPrice: 15200,
-    salePrice: 9936,
+    salePrice: 6336,
     badge: "KURUMSAL FAVORİ",
     popular: false,
     image: "/images/usecase-office.jpg",
@@ -180,6 +180,10 @@ export const BANK_ACCOUNTS: BankAccount[] = [
     logoColor: "text-indigo-700 bg-indigo-50 border-indigo-200",
   },
 ];
+
+export const SALE_DISCOUNT_PERCENT = Math.round(
+  (1 - GLASS_PRODUCTS[0].basePricePerM2 / GLASS_PRODUCTS[0].regularPricePerM2) * 100
+);
 
 export const INSTALLMENT_OPTIONS = [
   { count: 1, label: "Tek Çekim", rate: 0 },

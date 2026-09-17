@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { SITE_CONFIG } from "@/data/config";
 import { formatArea } from "@/lib/utils";
+import { generateOrderNumber, submitSiteOrder } from "@/lib/orders";
 
 export const GlassConfigurator: React.FC = () => {
   // Step 1: Kullanım Alanı
@@ -68,15 +69,39 @@ export const GlassConfigurator: React.FC = () => {
     { id: "Diğer", label: "Diğer Özel Proje", icon: HelpCircle },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Prepare message payload
-    setTimeout(() => {
-      setLoading(false);
-      setSubmitted(true);
-    }, 600);
+    const result = await submitSiteOrder({
+      type: "lead",
+      orderNumber: generateOrderNumber("TK"),
+      customer: {
+        fullName: name.trim(),
+        phone: phone.trim(),
+        email,
+        city,
+      },
+      items: [
+        {
+          name: `${spaceType} projesi`,
+          details: `${widthCm}×${heightCm} cm, ${quantity} adet, ${formatArea(totalM2)} m², ${
+            installation === "installation_included" ? "Montaj dahil" : "Sadece ürün"
+          }`,
+          quantity,
+        },
+      ],
+      note: projectNote.trim() || undefined,
+    });
+
+    setLoading(false);
+
+    if (!result.ok) {
+      alert(result.error || "Talep iletilemedi. Lütfen WhatsApp üzerinden yazın.");
+      return;
+    }
+
+    setSubmitted(true);
   };
 
   const getWhatsAppLeadText = () => {
