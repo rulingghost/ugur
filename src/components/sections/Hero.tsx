@@ -70,7 +70,7 @@ export const Hero: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl"
             >
-              Mevcut camlarınızı kırmadan veya sökmeden akıllı cama dönüştürün. Milimetrik ölçülerinizi girin, metrekare üzerinden anında canlı fiyatınızı hesaplayın. <strong>Kredi Kartı (9 Taksit), Kapıda Ödeme veya Havale</strong> seçenekleriyle doğrudan online sipariş verin.
+              Mevcut camlarınızı kırmadan veya sökmeden akıllı cama dönüştürün. Milimetrik ölçülerinizi girin, metrekare üzerinden anında canlı fiyatınızı hesaplayın. <strong>Kapıda Ödeme veya Havale</strong> seçenekleriyle doğrudan online sipariş verin.
             </motion.p>
 
             {/* CTAs */}

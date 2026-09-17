@@ -89,7 +89,7 @@ export const ProductModels: React.FC = () => {
                 <span className="text-sm text-slate-400 font-semibold"> / m²</span>
               </div>
               <span className="text-[11px] text-emerald-600 font-semibold block mt-1">
-                ✓ Kredi Kartına 9 Taksit İmkanı
+                ✓ Kapıda Ödeme ve Havale
               </span>
             </div>
           </div>

@@ -159,25 +159,11 @@ export const ACCESSORY_OPTIONS: AccessoryOption[] = [
 
 export const BANK_ACCOUNTS: BankAccount[] = [
   {
-    bankName: "Garanti BBVA",
-    accountHolder: "MARBAR AKILLI CAM TEKNOLOJİLERİ A.Ş.",
-    iban: "TR32 0006 2000 1199 8877 6655 44",
-    branch: "Maslak Ticari Şube (Kod: 1199)",
-    logoColor: "text-emerald-700 bg-emerald-50 border-emerald-200",
-  },
-  {
     bankName: "İş Bankası",
-    accountHolder: "MARBAR AKILLI CAM TEKNOLOJİLERİ A.Ş.",
-    iban: "TR64 0006 4000 0012 3456 7890 12",
-    branch: "Levent Şubesi (Kod: 1042)",
+    accountHolder: "Uğur Başaran",
+    iban: "TR88 0006 4000 0014 3610 2593 20",
+    branch: "",
     logoColor: "text-blue-700 bg-blue-50 border-blue-200",
-  },
-  {
-    bankName: "Yapı Kredi",
-    accountHolder: "MARBAR AKILLI CAM TEKNOLOJİLERİ A.Ş.",
-    iban: "TR88 0006 7010 0000 0098 7654 32",
-    branch: "Büyükdere Cad. Şubesi (Kod: 0450)",
-    logoColor: "text-indigo-700 bg-indigo-50 border-indigo-200",
   },
 ];
 

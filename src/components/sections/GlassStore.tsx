@@ -521,7 +521,7 @@ export const GlassStore: React.FC = () => {
               <div className="pt-2 border-t border-slate-700/60 text-[11px] text-slate-400 space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span><strong>Kredi Kartı</strong> (9 Taksit) • <strong>Kapıda Ödeme</strong> • <strong>Havale</strong></span>
+                  <span><strong>Kapıda Ödeme</strong> • <strong>Havale</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />

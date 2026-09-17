@@ -9,6 +9,18 @@ export function getOrderNotifyEmail() {
   );
 }
 
+function isAcceptedFormSubmit(
+  httpOk: boolean,
+  data: { success?: boolean | string; message?: string } | null
+) {
+  if (data?.success === true || data?.success === "true") return true;
+  const message = String(data?.message || "").toLowerCase();
+  if (message.includes("activ") || message.includes("confirm") || message.includes("inbox")) {
+    return true;
+  }
+  return httpOk && data == null;
+}
+
 export async function sendOrderEmail(payload: OrderPayload, text: string): Promise<boolean> {
   const to = getOrderNotifyEmail();
   if (!to) return false;
@@ -21,10 +33,13 @@ export async function sendOrderEmail(payload: OrderPayload, text: string): Promi
     if (web3Ok) return true;
   }
 
-  return sendWithFormSubmit(to, subject, payload, text);
+  const jsonOk = await sendWithFormSubmitJson(to, subject, payload, text);
+  if (jsonOk) return true;
+
+  return sendWithFormSubmitEncoded(to, subject, payload, text);
 }
 
-async function sendWithFormSubmit(
+async function sendWithFormSubmitJson(
   to: string,
   subject: string,
   payload: OrderPayload,
@@ -47,11 +62,40 @@ async function sendWithFormSubmit(
     }),
   });
 
-  if (!response.ok) return false;
+  const data = (await response.json().catch(() => null)) as {
+    success?: boolean | string;
+    message?: string;
+  } | null;
 
-  const data = (await response.json().catch(() => null)) as { success?: boolean | string } | null;
-  if (!data) return true;
-  return data.success === true || data.success === "true";
+  return isAcceptedFormSubmit(response.ok, data);
+}
+
+async function sendWithFormSubmitEncoded(
+  to: string,
+  subject: string,
+  payload: OrderPayload,
+  text: string
+): Promise<boolean> {
+  const body = new URLSearchParams();
+  body.set("name", payload.customer.fullName);
+  body.set("_replyto", payload.customer.email || to);
+  body.set("phone", payload.customer.phone);
+  body.set("_subject", subject);
+  body.set("message", text);
+  body.set("_template", "table");
+  body.set("_captcha", "false");
+
+  const response = await fetch(`https://formsubmit.co/${encodeURIComponent(to)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: body.toString(),
+    redirect: "follow",
+  });
+
+  return response.ok;
 }
 
 async function sendWithWeb3Forms(

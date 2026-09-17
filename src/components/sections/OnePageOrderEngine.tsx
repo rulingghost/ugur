@@ -6,7 +6,6 @@ import {
   ShoppingBag,
   Check,
   Truck,
-  CreditCard,
   Ruler,
   Zap,
   Gift,
@@ -23,13 +22,13 @@ import {
   Clock,
   Building2,
 } from "lucide-react";
-import { BESTSELLER_BUNDLES, GLASS_PRODUCTS, ACCESSORY_OPTIONS, BANK_ACCOUNTS, INSTALLMENT_OPTIONS, BestsellerBundle, AccessoryOption } from "@/data/products";
+import { BESTSELLER_BUNDLES, GLASS_PRODUCTS, ACCESSORY_OPTIONS, BANK_ACCOUNTS, BestsellerBundle, AccessoryOption } from "@/data/products";
 import { SITE_CONFIG } from "@/data/config";
 import { formatArea } from "@/lib/utils";
 import { generateOrderNumber, submitSiteOrder } from "@/lib/orders";
 
 type OrderType = "bundle" | "custom";
-type PaymentType = "cod" | "credit_card" | "bank_transfer" | "whatsapp";
+type PaymentType = "cod" | "bank_transfer" | "whatsapp";
 
 export const OnePageOrderEngine: React.FC = () => {
   // Order selection state
@@ -53,11 +52,6 @@ export const OnePageOrderEngine: React.FC = () => {
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<PaymentType>("cod");
-  const [cardHolder, setCardHolder] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [installment, setInstallment] = useState<number>(1);
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,8 +83,7 @@ export const OnePageOrderEngine: React.FC = () => {
   const bankDiscount = paymentMethod === "bank_transfer" ? Math.round(subtotal * 0.05) : 0;
   
   // Card installment interest if any
-  const installmentRate = paymentMethod === "credit_card" ? (INSTALLMENT_OPTIONS.find((i) => i.count === installment)?.rate || 0) : 0;
-  const installmentInterest = Math.round((subtotal - bankDiscount) * installmentRate);
+  const installmentInterest = 0;
 
   const finalTotal = subtotal - bankDiscount + installmentInterest;
   const totalSavings = (currentRegularPrice - currentBasePrice) + bankDiscount;
@@ -103,20 +96,6 @@ export const OnePageOrderEngine: React.FC = () => {
   };
 
   // Card Formatters
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "").slice(0, 16);
-    setCardNumber(raw.replace(/(\d{4})(?=\d)/g, "$1 "));
-  };
-
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "").slice(0, 4);
-    if (raw.length >= 2) {
-      setCardExpiry(`${raw.slice(0, 2)}/${raw.slice(2)}`);
-    } else {
-      setCardExpiry(raw);
-    }
-  };
-
   const handleCopyIban = (iban: string) => {
     navigator.clipboard.writeText(iban.replace(/\s/g, ""));
     setCopiedIban(iban);
@@ -124,7 +103,6 @@ export const OnePageOrderEngine: React.FC = () => {
   };
 
   const getPaymentMethodLabel = () => {
-    if (paymentMethod === "credit_card") return `Kredi Kartı (${installment} Taksit)`;
     if (paymentMethod === "cod") return "Kapıda Ödeme";
     if (paymentMethod === "bank_transfer") return "Havale / EFT";
     return "WhatsApp Sipariş";
@@ -164,13 +142,6 @@ export const OnePageOrderEngine: React.FC = () => {
     if (paymentMethod !== "whatsapp" && !address.trim()) {
       alert("Lütfen Ad Soyad, Telefon ve Teslimat Adresi bilgilerini doldurunuz.");
       return;
-    }
-
-    if (paymentMethod === "credit_card") {
-      if (cardNumber.replace(/\s/g, "").length < 16 || cardExpiry.length < 5 || cardCvc.length < 3) {
-        alert("Lütfen geçerli kart bilgilerinizi eksiksiz giriniz.");
-        return;
-      }
     }
 
     setIsSubmitting(true);
@@ -270,7 +241,7 @@ export const OnePageOrderEngine: React.FC = () => {
               <div className="flex justify-between">
                 <span className="text-slate-500">Ödeme Yöntemi:</span>
                 <strong className="text-[#0284c7]">
-                  {paymentMethod === "cod" ? "Kapıda Ödeme (Nakit / Kredi Kartı)" : paymentMethod === "credit_card" ? "Kredi Kartı (3D Secure)" : "Banka Havalesi / EFT"}
+                  {paymentMethod === "cod" ? "Kapıda Ödeme (Nakit / Kart)" : "Banka Havalesi / EFT"}
                 </strong>
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-base text-slate-900">
@@ -659,40 +630,7 @@ export const OnePageOrderEngine: React.FC = () => {
                       <Truck className="w-5 h-5 text-emerald-600 shrink-0" />
                     </div>
 
-                    {/* OPTION 2: KREDİ KARTI 9 TAKSİT */}
-                    <div
-                      onClick={() => setPaymentMethod("credit_card")}
-                      className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
-                        paymentMethod === "credit_card"
-                          ? "border-[#0284c7] bg-sky-50/50 shadow-xs"
-                          : "border-slate-200 hover:border-slate-300"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            paymentMethod === "credit_card"
-                              ? "border-[#0284c7] bg-[#0284c7] text-white"
-                              : "border-slate-300"
-                          }`}
-                        >
-                          {paymentMethod === "credit_card" && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <strong className="text-xs sm:text-sm font-extrabold text-slate-900">
-                              💳 Kredi Kartı / 9 Taksit
-                            </strong>
-                          </div>
-                          <p className="text-[11px] text-slate-500">
-                            256-Bit SSL & 3D Secure Güvenli Ödeme.
-                          </p>
-                        </div>
-                      </div>
-                      <CreditCard className="w-5 h-5 text-[#0284c7] shrink-0" />
-                    </div>
-
-                    {/* OPTION 3: HAVALE / EFT */}
+                    {/* OPTION 2: HAVALE / EFT */}
                     <div
                       onClick={() => setPaymentMethod("bank_transfer")}
                       className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
@@ -721,7 +659,7 @@ export const OnePageOrderEngine: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-500">
-                            Garanti, İş Bankası, Yapı Kredi hesaplarına havale.
+                            İş Bankası hesabına havale / EFT.
                           </p>
                         </div>
                       </div>
@@ -762,83 +700,6 @@ export const OnePageOrderEngine: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* KREDİ KARTI ALANLARI (Sadece Kart Seçildiğinde) */}
-                  {paymentMethod === "credit_card" && (
-                    <div className="pt-3 border-t border-slate-100 space-y-3 animate-in fade-in-50 duration-200">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                          Kart Üzerindeki İsim
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Ad Soyad"
-                          value={cardHolder}
-                          onChange={(e) => setCardHolder(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                          Kart Numarası
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="0000 0000 0000 0000"
-                          value={cardNumber}
-                          onChange={handleCardNumberChange}
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-medium"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                            Son Kullanma (AA/YY)
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="12/28"
-                            value={cardExpiry}
-                            onChange={handleExpiryChange}
-                            className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-medium"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                            Güvenlik (CVC)
-                          </label>
-                          <input
-                            type="password"
-                            maxLength={4}
-                            placeholder="•••"
-                            value={cardCvc}
-                            onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ""))}
-                            className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-medium"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                          Taksit Seçeneği
-                        </label>
-                        <select
-                          value={installment}
-                          onChange={(e) => setInstallment(Number(e.target.value))}
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium bg-white"
-                        >
-                          {INSTALLMENT_OPTIONS.map((opt) => (
-                            <option key={opt.count} value={opt.count}>
-                              {opt.count === 1 ? "Tek Çekim (Komisyonsuz)" : `${opt.count} Taksit`}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
                   {/* HAVALE BİLGİSİ (Sadece Havale Seçildiğinde) */}
                   {paymentMethod === "bank_transfer" && (
                     <div className="pt-3 border-t border-slate-100 space-y-2 text-xs animate-in fade-in-50 duration-200">
@@ -849,6 +710,9 @@ export const OnePageOrderEngine: React.FC = () => {
                         <div className="flex justify-between font-bold text-slate-900 mb-1">
                           <span>{BANK_ACCOUNTS[0].bankName}</span>
                           <span className="text-indigo-600">%5 İndirimli</span>
+                        </div>
+                        <div className="text-[11px] text-slate-600 mb-1">
+                          Hesap Sahibi: <strong>{BANK_ACCOUNTS[0].accountHolder}</strong>
                         </div>
                         <div className="font-mono text-[11px] text-slate-700 bg-white p-2 rounded border border-indigo-100 flex items-center justify-between">
                           <span>{BANK_ACCOUNTS[0].iban}</span>

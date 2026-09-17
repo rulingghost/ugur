@@ -81,30 +81,47 @@ export function formatOrderMessage(payload: OrderPayload): string {
   return lines.join("\n");
 }
 
+async function sendOrderEmailFromBrowser(payload: OrderPayload): Promise<boolean> {
+  const { sendOrderEmail } = await import("@/lib/notify-email");
+  return sendOrderEmail(payload, formatOrderMessage(payload));
+}
+
 export async function submitSiteOrder(payload: OrderPayload): Promise<{
   ok: boolean;
   orderNumber: string;
   error?: string;
 }> {
-  const response = await fetch("/api/orders", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const clientEmailOk = await sendOrderEmailFromBrowser(payload).catch(() => false);
 
-  const data = (await response.json().catch(() => ({}))) as {
-    ok?: boolean;
-    orderNumber?: string;
-    error?: string;
-  };
+  let apiOk = false;
+  let apiError = "";
 
-  if (!response.ok || !data.ok) {
-    return {
-      ok: false,
-      orderNumber: payload.orderNumber,
-      error: data.error || "Sipariş iletilemedi",
+  try {
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      orderNumber?: string;
+      error?: string;
     };
+
+    apiOk = response.ok && Boolean(data.ok);
+    apiError = data.error || "";
+  } catch {
+    apiError = "Sunucuya ulaşılamadı";
   }
 
-  return { ok: true, orderNumber: data.orderNumber || payload.orderNumber };
+  if (clientEmailOk || apiOk) {
+    return { ok: true, orderNumber: payload.orderNumber };
+  }
+
+  return {
+    ok: false,
+    orderNumber: payload.orderNumber,
+    error: apiError || "Sipariş e-postası gönderilemedi",
+  };
 }

@@ -27,9 +27,9 @@ export const Benefits: React.FC = () => {
       icon: Truck,
     },
     {
-      title: "3 Güvenli Ödeme Yolu",
-      subtitle: "Kart, Kapıda Ödeme, Havale",
-      desc: "Kredi kartına 9 aya varan taksit, kapıda nakit/kartla teslimatta ödeme veya avantajlı havale/EFT ile güvenli sipariş.",
+      title: "2 Güvenli Ödeme Yolu",
+      subtitle: "Kapıda Ödeme ve Havale",
+      desc: "Kapıda nakit veya kartla teslimatta ödeme, ya da avantajlı havale/EFT ile güvenli sipariş.",
       icon: CreditCard,
     },
     {

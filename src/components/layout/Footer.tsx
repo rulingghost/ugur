@@ -49,7 +49,7 @@ export const Footer: React.FC = () => {
                 Metrekareye Özel Akıllı Cam ve Film E-Ticaret
               </p>
               <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
-                Özel milimetrik ölçülerinizle sipariş verebileceğiniz yeni nesil akıllı cam ve kendinden yapışkanlı akıllı film sistemleri. Kredi Kartı, Kapıda Ödeme ve Havale seçenekleriyle güvenli alışveriş.
+                Özel milimetrik ölçülerinizle sipariş verebileceğiniz yeni nesil akıllı cam ve kendinden yapışkanlı akıllı film sistemleri. Kapıda Ödeme ve Havale seçenekleriyle güvenli alışveriş.
               </p>
               <div className="flex items-center gap-2 pt-2">
                 <a
@@ -176,9 +176,6 @@ export const Footer: React.FC = () => {
           <div className="py-6 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
               <span className="font-bold text-slate-800">Güvenli Ödeme Seçenekleri:</span>
-              <span className="px-2.5 py-1 rounded bg-white border border-slate-200 font-bold text-slate-700">
-                💳 Kredi Kartı (9 Taksit)
-              </span>
               <span className="px-2.5 py-1 rounded bg-white border border-slate-200 font-bold text-slate-700">
                 📦 Kapıda Ödeme (Nakit/Kart)
               </span>

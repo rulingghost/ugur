@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: "MARBAR | Metrekareye Özel Akıllı Cam ve Film E-Ticaret",
   description:
-    "MARBAR Akıllı Cam ve Kendinden Yapışkanlı Akıllı Film ürünlerini metrekare bazlı özel ölçülerinizle hemen hesaplayın, Kredi Kartı (Taksitli), Kapıda Ödeme veya Havale/EFT ile güvenle online satın alın.",
+    "MARBAR Akıllı Cam ve Kendinden Yapışkanlı Akıllı Film ürünlerini metrekare bazlı özel ölçülerinizle hemen hesaplayın, Kapıda Ödeme veya Havale/EFT ile güvenle online satın alın.",
   keywords: [
     "switchable glass",
     "akıllı cam fiyatları",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     url: SITE_CONFIG.url,
     title: "MARBAR | Metrekareye Özel Akıllı Cam ve Film E-Ticaret",
     description:
-      "Metrekare bazlı özel ölçü akıllı cam ve retrofit film siparişi. Kredi Kartı, Kapıda Ödeme, Havale seçenekleri.",
+      "Metrekare bazlı özel ölçü akıllı cam ve retrofit film siparişi. Kapıda Ödeme ve Havale seçenekleri.",
     siteName: "MARBAR",
     images: [
       {

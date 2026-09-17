@@ -195,7 +195,7 @@ export const CartDrawer: React.FC = () => {
                 </button>
 
                 <p className="text-[11px] text-center text-slate-500">
-                  Kredi Kartı (Taksitli) • Kapıda Ödeme • Havale/EFT
+                  Kapıda Ödeme • Havale/EFT
                 </p>
               </div>
             </div>

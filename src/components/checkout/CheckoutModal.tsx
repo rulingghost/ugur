@@ -7,7 +7,6 @@ import {
   Truck,
   Building2,
   CheckCircle2,
-  Lock,
   Copy,
   Check,
   ShieldCheck,
@@ -16,12 +15,12 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { BANK_ACCOUNTS, INSTALLMENT_OPTIONS } from "@/data/products";
+import { BANK_ACCOUNTS } from "@/data/products";
 import { SITE_CONFIG } from "@/data/config";
 import { formatArea } from "@/lib/utils";
 import { generateOrderNumber, submitSiteOrder } from "@/lib/orders";
 
-type PaymentMethod = "credit_card" | "cod" | "bank_transfer";
+type PaymentMethod = "cod" | "bank_transfer";
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -48,14 +47,7 @@ export const CheckoutModal: React.FC = () => {
   const [orderNote, setOrderNote] = useState("");
 
   // Payment State
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("credit_card");
-
-  // Credit Card Form
-  const [cardHolder, setCardHolder] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [selectedInstallment, setSelectedInstallment] = useState<number>(1);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
 
   // UI Flow State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,39 +57,15 @@ export const CheckoutModal: React.FC = () => {
 
   if (!isCheckoutOpen) return null;
 
-  // Format Card Number (XXXX XXXX XXXX XXXX)
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "").slice(0, 16);
-    const formatted = raw.replace(/(\d{4})(?=\d)/g, "$1 ");
-    setCardNumber(formatted);
-  };
-
-  // Format Expiry (MM/YY)
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "").slice(0, 4);
-    if (raw.length >= 2) {
-      setCardExpiry(`${raw.slice(0, 2)}/${raw.slice(2)}`);
-    } else {
-      setCardExpiry(raw);
-    }
-  };
-
-  // Copy IBAN Helper
   const handleCopyIban = (iban: string) => {
     navigator.clipboard.writeText(iban.replace(/\s/g, ""));
     setCopiedIban(iban);
     setTimeout(() => setCopiedIban(null), 2500);
   };
 
-  // Final Total calculation with COD fee or Installment interest if any
   const getCalculatedTotal = () => {
     if (paymentMethod === "cod") {
       return grandTotal + SITE_CONFIG.ecommerce.codFee;
-    }
-    if (paymentMethod === "credit_card" && selectedInstallment > 1) {
-      const option = INSTALLMENT_OPTIONS.find((o) => o.count === selectedInstallment);
-      const rate = option ? option.rate : 0;
-      return Math.round(grandTotal * (1 + rate));
     }
     return grandTotal;
   };
@@ -108,12 +76,7 @@ export const CheckoutModal: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const payMethodName =
-      paymentMethod === "credit_card"
-        ? `Kredi Kartı (${selectedInstallment} Taksit)`
-        : paymentMethod === "cod"
-        ? "Kapıda Ödeme"
-        : "Havale / EFT";
+    const payMethodName = paymentMethod === "cod" ? "Kapıda Ödeme" : "Havale / EFT";
 
     const generatedOrderNo = generateOrderNumber();
     const result = await submitSiteOrder({
@@ -168,12 +131,7 @@ export const CheckoutModal: React.FC = () => {
 
   // WhatsApp confirmation text
   const getWhatsAppOrderConfirmationText = () => {
-    const payMethodName =
-      paymentMethod === "credit_card"
-        ? `Kredi Kartı (${selectedInstallment} Taksit)`
-        : paymentMethod === "cod"
-        ? "Kapıda Ödeme"
-        : "Havale / EFT";
+    const payMethodName = paymentMethod === "cod" ? "Kapıda Ödeme" : "Havale / EFT";
 
     return encodeURIComponent(
       `*MARBAR Akıllı Cam Sipariş Bildirimi*\n` +
@@ -245,12 +203,6 @@ export const CheckoutModal: React.FC = () => {
                   <span>{finalPayableTotal.toLocaleString("tr-TR")} ₺</span>
                 </div>
 
-                {paymentMethod === "credit_card" && (
-                  <p className="text-slate-600 leading-relaxed">
-                    Kredi kartı provizyon işlemi başarıyla simüle edilmiştir. Siparişiniz doğrudan üretime ve milimetrik kesime alınmıştır.
-                  </p>
-                )}
-
                 {paymentMethod === "cod" && (
                   <p className="text-slate-600 leading-relaxed">
                     Siparişiniz kapıda ödeme olarak kaydedilmiştir. Ürününüz özel korumalı ambalajında adresinize ulaştığında nakit veya kredi kartıyla ödeme yapabilirsiniz.
@@ -264,7 +216,8 @@ export const CheckoutModal: React.FC = () => {
                     </p>
                     <div className="p-3 bg-white rounded-xl border border-slate-200 font-mono text-xs flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-[#0B132B]">Garanti BBVA: </span>
+                        <div className="font-bold text-[#0B132B]">{BANK_ACCOUNTS[0].bankName}</div>
+                        <div className="text-[11px] text-slate-600 font-sans">Alıcı: {BANK_ACCOUNTS[0].accountHolder}</div>
                         <span>{BANK_ACCOUNTS[0].iban}</span>
                       </div>
                       <button
@@ -492,28 +445,7 @@ export const CheckoutModal: React.FC = () => {
                 </div>
 
                 {/* Method Selector Tabs */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("credit_card")}
-                    className={`p-3 rounded-2xl border text-left flex flex-col justify-between transition-all ${
-                      paymentMethod === "credit_card"
-                        ? "border-[#0284c7] bg-sky-50/40 ring-1 ring-[#0284c7]"
-                        : "border-slate-200 hover:border-slate-300 bg-white"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between w-full mb-2">
-                      <CreditCard className={`w-5 h-5 ${paymentMethod === "credit_card" ? "text-[#0284c7]" : "text-slate-500"}`} />
-                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        Taksitli
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-[#0B132B]">Kredi / Banka Kartı</h4>
-                      <p className="text-[11px] text-slate-500">3D Secure ile Güvenli</p>
-                    </div>
-                  </button>
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("cod")}
@@ -557,109 +489,6 @@ export const CheckoutModal: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Payment Option 1: Credit Card Detail Form */}
-                {paymentMethod === "credit_card" && (
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="sm:col-span-2">
-                        <label className="block font-medium text-slate-700 mb-1">
-                          Kart Üzerindeki İsim <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="Ad Soyad"
-                          value={cardHolder}
-                          onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#0284c7]"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-2">
-                        <label className="block font-medium text-slate-700 mb-1">
-                          Kart Numarası <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={19}
-                          placeholder="XXXX XXXX XXXX XXXX"
-                          value={cardNumber}
-                          onChange={handleCardNumberChange}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-mono text-xs focus:outline-none focus:border-[#0284c7]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-medium text-slate-700 mb-1">
-                          Son Kullanma (AA/YY) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={5}
-                          placeholder="AA/YY"
-                          value={cardExpiry}
-                          onChange={handleExpiryChange}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-mono text-xs focus:outline-none focus:border-[#0284c7]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-medium text-slate-700 mb-1">
-                          CVC Güvenlik Kodu <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          maxLength={4}
-                          placeholder="•••"
-                          value={cardCvc}
-                          onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ""))}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-mono text-xs focus:outline-none focus:border-[#0284c7]"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Taksit Seçenekleri */}
-                    <div className="space-y-2 pt-2 border-t border-slate-200">
-                      <span className="text-xs font-bold text-slate-700 block">Taksit Seçimi:</span>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                        {INSTALLMENT_OPTIONS.map((opt) => {
-                          const total = Math.round(grandTotal * (1 + opt.rate));
-                          const monthly = Math.round(total / opt.count);
-                          const isSelected = selectedInstallment === opt.count;
-                          return (
-                            <button
-                              key={opt.count}
-                              type="button"
-                              onClick={() => setSelectedInstallment(opt.count)}
-                              className={`p-2.5 rounded-xl border text-center transition-all ${
-                                isSelected
-                                  ? "border-[#0284c7] bg-white ring-2 ring-[#0284c7] shadow-sm"
-                                  : "border-slate-200 bg-white/70 hover:bg-white"
-                              }`}
-                            >
-                              <div className="font-bold text-slate-800">{opt.label}</div>
-                              <div className="text-[11px] text-slate-500">
-                                {monthly.toLocaleString("tr-TR")} ₺ / ay
-                              </div>
-                              <div className="text-[10px] text-slate-400 mt-0.5">
-                                Toplam: {total.toLocaleString("tr-TR")} ₺
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 pt-1">
-                      <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Kart bilgileriniz 256-Bit SSL şifreleme ve 3D Secure ile korunmaktadır.</span>
-                    </div>
-                  </div>
-                )}
-
                 {/* Payment Option 2: Cash On Delivery */}
                 {paymentMethod === "cod" && (
                   <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-3 text-xs">
@@ -686,7 +515,7 @@ export const CheckoutModal: React.FC = () => {
                     <div className="flex items-start gap-2 text-slate-600">
                       <Building2 className="w-4 h-4 text-[#0284c7] shrink-0 mt-0.5" />
                       <p>
-                        Siparişinizi tamamladıktan sonra aşağıdaki banka hesaplarımızdan birine havale/EFT yapabilirsiniz. Siparişiniz havale teyidinin ardından derhal kesim işlemine alınır.
+                        Siparişinizi tamamladıktan sonra aşağıdaki İş Bankası hesabına havale/EFT yapabilirsiniz. Siparişiniz havale teyidinin ardından derhal kesim işlemine alınır.
                       </p>
                     </div>
 
@@ -699,7 +528,9 @@ export const CheckoutModal: React.FC = () => {
                           <div>
                             <div className="font-bold text-slate-800 flex items-center gap-2">
                               <span>{bank.bankName}</span>
-                              <span className="text-[10px] text-slate-400 font-normal">({bank.branch})</span>
+                              {bank.branch ? (
+                                <span className="text-[10px] text-slate-400 font-normal">({bank.branch})</span>
+                              ) : null}
                             </div>
                             <div className="text-[11px] text-slate-500 mt-0.5">
                               Alıcı: <strong className="text-slate-700">{bank.accountHolder}</strong>

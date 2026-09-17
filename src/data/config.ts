@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   title: "MARBAR | Metrekareye Özel Kendinden Yapışkanlı Akıllı Film E-Ticaret",
   tagline: "Tek Dokunuşla Şeffaf. Tek Dokunuşla Mahrem.",
   description:
-    "MARBAR Kendinden Yapışkanlı Akıllı Film ürününü metrekare bazlı özel ölçülerinizle hemen hesaplayın, Kredi Kartı (Taksit), Kapıda Ödeme veya Havale ile anında sipariş verin.",
+    "MARBAR Kendinden Yapışkanlı Akıllı Film ürününü metrekare bazlı özel ölçülerinizle hemen hesaplayın, Kapıda Ödeme veya Havale ile anında sipariş verin.",
   url: "https://marbarglass.com",
 
   // İletişim & WhatsApp Ayarları
@@ -45,7 +45,7 @@ export const SITE_CONFIG = {
   trustPillars: [
     "Milimetrik Özel Kesim",
     "Sigortalı Hızlı Kargo",
-    "Kredi Kartı / Kapıda Ödeme / Havale",
+    "Kapıda Ödeme / Havale",
     "2 Yıl Birebir Değişim Garantisi",
   ],
 };
