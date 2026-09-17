@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getAdminCookieName, isValidAdminToken } from "@/lib/admin-auth";
 import { listOrdersFromSheet } from "@/lib/order-store";
 
+export const runtime = "nodejs";
+
 function tokenFromRequest(request: Request) {
   const cookie = request.headers.get("cookie") || "";
   const match = cookie.match(new RegExp(`(?:^|;\\s*)${getAdminCookieName()}=([^;]+)`));

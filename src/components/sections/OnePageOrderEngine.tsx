@@ -289,7 +289,7 @@ export const OnePageOrderEngine: React.FC = () => {
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 type="button"
-                onClick={triggerWhatsAppOrder}
+                onClick={() => triggerWhatsAppOrder(orderId)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 shadow-md"
               >
                 <MessageCircle className="w-4 h-4 fill-current" />
